@@ -1,0 +1,167 @@
+#include <IRremote.h>
+
+#include <Servo.h>
+
+int led_r = 13;        //red LED pin corresponding to ir_1
+int led_g = 11;        //green LED pin corresponding to ir_2
+int led_b = 3;         //blue LED pin corresponding to ir_3
+int led_y = 2;         //yellow LED pin corresponding to ir_4
+int us_1trig = 4;      //Trigger pin of the ultrasonic sensor 1
+int us_1echo = 5;      //Echo pin of the ultrasonic sensor 1
+int us_2trig = 12;     //Trigger pin of the ultrasonic sensor 2
+int us_2echo = 10;     //Echo pin of the ultrasonic sensor 2
+int servo_1 = A3;
+int servo_2 = A2;
+int ir_1 = 8;          //pin ir_1 is attached to
+int ir_2 = 7;          //pin ir_2 is attached to
+int ir_3 = 9;          //pin ir_3 is attached to
+int ir_4 = 6;          //pin ir_4 is attached to
+int soundSpeed = 334;   //speed of sound in m/s
+
+IRrecv irrecv(8);
+decode_results results;
+
+Servo servo1;
+Servo servo2;
+
+void setup() {
+  Serial.begin(9600);
+ //setting the pinModes as output/input
+  pinMode(led_r,OUTPUT);
+  pinMode(led_g,OUTPUT);
+  pinMode(led_b,OUTPUT);
+  pinMode(led_y,OUTPUT);
+  pinMode(us_1trig,OUTPUT);
+  pinMode(us_1echo,INPUT);
+  pinMode(us_2trig,OUTPUT);
+  pinMode(us_2echo,INPUT);
+  pinMode(servo_1,OUTPUT);
+  pinMode(servo_2,OUTPUT);
+  pinMode(ir_1,OUTPUT);
+  pinMode(ir_2,OUTPUT);
+  pinMode(ir_3,OUTPUT);
+  pinMode(ir_4,OUTPUT);
+
+  servo1.attach(A3);
+  servo2.attach(A2);
+  
+//setting the initial positions of the servos to 0
+  servo1.write(0);
+  servo2.write(0);
+
+  irrecv.enableIRIn();
+}
+
+void loop() {
+
+//first barricade
+  digitalWrite(us_1trig,LOW);
+  delayMicroseconds(2);
+  digitalWrite(us_1trig,HIGH);
+  delayMicroseconds(120);
+  digitalWrite(us_1trig,LOW);
+
+  int pingTime1 = pulseIn(us_1echo,HIGH);  //ping time in seconds
+  int targetDistance1 = (soundSpeed*pingTime1)/2;  //distance of the car from the barricade 1 in metres
+
+  if(targetDistance1 >= 200){
+    servo1.write(90);
+    delay(3000);          //the barricade closes after 6 seconds
+    servo1.write(0);
+    delay(2000);
+  }
+
+  //int results.value = results;
+  Serial.println(" ");
+  Serial.println(" Ordering item 1 ");
+  delay(5000);
+    if(results.value != 16582903){
+    digitalWrite(led_r, HIGH);
+    delay(1000);
+    digitalWrite(led_r,LOW);
+  }
+  Serial.println(" ");
+  Serial.println(" Ordering item 2 ");
+  delay(5000);
+    if(results.value != 16582903){
+    digitalWrite(led_g, HIGH);
+    delay(1000);
+    digitalWrite(led_g,LOW);
+  }
+  Serial.println(" ");
+  Serial.println(" Ordering item 3 ");
+  delay(5000);
+  if(results.value != 16582903 ){
+    digitalWrite(led_b, HIGH);
+    delay(1000);
+    digitalWrite(led_b,LOW);
+  }
+  Serial.println(" ");
+  Serial.println(" Ordering item 4 ");
+  delay(5000);
+    if(results.value != 16582903 ){
+    digitalWrite(led_y, HIGH);
+    delay(1000);
+    digitalWrite(led_y,LOW);
+    }
+  
+
+//second barricade
+  digitalWrite(us_2trig,LOW);
+  delayMicroseconds(2);
+  digitalWrite(us_2trig,HIGH);
+  delayMicroseconds(120);
+  digitalWrite(us_2trig,LOW);
+
+  int pingTime2 = pulseIn(us_2echo,HIGH);  //ping time in seconds
+  int targetDistance2 = (soundSpeed*pingTime2)/2;  //distance of the car from the barricade 1 in metres
+
+  if(targetDistance2 >= 200){
+    servo2.write(90);
+    delay(3000);          //the barricade closes after 6 seconds
+    servo2.write(0);
+    delay(2000);
+  }
+
+/*//taking the IR readings
+  int irReading1 = digitalRead(ir_1);
+  int irReading2 = digitalRead(ir_2);
+  int irReading3 = digitalRead(ir_3);
+  int irReading4 = digitalRead(ir_4);
+
+  if(irReading1 == HIGH){
+    digitalWrite(led_r,HIGH);
+    delay(5000);
+    digitalWrite(led_r,LOW);
+    digitalWrite(led_g,LOW);
+    digitalWrite(led_b,LOW);
+    digitalWrite(led_y,LOW);
+  }
+  if(irReading2 == HIGH){
+    digitalWrite(led_g,HIGH);
+    delay(5000);
+    digitalWrite(led_g,LOW);
+    digitalWrite(led_r,LOW);
+    digitalWrite(led_b,LOW);
+    digitalWrite(led_y,LOW);
+  }
+  if(irReading3 == HIGH){
+    digitalWrite(led_b,HIGH);
+    delay(5000);
+    digitalWrite(led_b,LOW);
+    digitalWrite(led_r,LOW);
+    digitalWrite(led_g,LOW);
+    digitalWrite(led_y,LOW);
+  }
+  if(irReading4 == HIGH){
+    digitalWrite(led_y,HIGH);
+    delay(5000);
+    digitalWrite(led_y,LOW);
+    digitalWrite(led_r,LOW);
+    digitalWrite(led_g,LOW);
+    digitalWrite(led_b,LOW);
+  }
+
+  */
+  irrecv.resume();
+}
